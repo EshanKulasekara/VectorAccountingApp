@@ -101,7 +101,13 @@ def Add_Income(user):
     while user:
         amount = console.input("What is your amount? ")
         if amount:
-          break  
+            try:
+                amount = int(amount)
+                break 
+            except ValueError:
+                console.print("Please enter a number", style="red") 
+        elif not amount:
+            console.print("Please Enter an amount", style="red")
     for account in accounts:
         if account["owner"] == user.get("username"):
             console.print("Added amount:" ,amount)
