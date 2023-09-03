@@ -32,12 +32,32 @@
     },
     {
         "owner": "eshan",
-        "amount": 6000,
+        "amount": 9000,
         "history": [
             {
                 "amount": 5000,
                 "type": "Income",
                 "datetime": "03/09/2023 14:30:55"
+            },
+            {
+                "amount": 7000,
+                "type": "Expense",
+                "datetime": "03/09/2023 14:45:12"
+            },
+            {
+                "amount": 8000,
+                "type": "Income",
+                "datetime": "03/09/2023 14:46:41"
+            },
+            {
+                "amount": 8000,
+                "type": "Expense",
+                "datetime": "03/09/2023 14:48:10"
+            },
+            {
+                "amount": 10000,
+                "type": "Income",
+                "datetime": "03/09/2023 14:48:21"
             }
         ]
     }

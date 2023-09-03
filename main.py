@@ -199,10 +199,10 @@ def History(user, func, data = None):
 def main():    
     run_app = True
     console.print("Accounting App By Vector INC.", style="blue bold")
-    accounts = load_data(ACCOUNTS_FILE)
     while run_app == True:
         user = authenticate()
         while user:
+            accounts = load_data(ACCOUNTS_FILE)
             opt = menu()
             match opt:
                 case 'e':
@@ -219,7 +219,10 @@ def main():
                 case 'b':
                     for account in accounts:
                         if account["owner"] == user.get("username"):
-                            console.print(account["amount"])
+                            if account["amount"] > 0:
+                                console.print(account["amount"], style="green")
+                            elif account["amount"] < 0:
+                                console.print(account["amount"], style="red")
 
         #else:
         #    user = authenticate()
