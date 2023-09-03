@@ -8,6 +8,7 @@ console = Console()
 
 DATA_DIR = 'data'
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
+ACCOUNTS_FILE = os.path.join(DATA_DIR, 'accounts.json')
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -36,6 +37,7 @@ def askUsernameAndPassword():
 
 def authenticate():
     users = load_data(USERS_FILE)
+    accounts = load_data(ACCOUNTS_FILE)
     active_user = False
     for _ in range(3):
         ans = askUsernameAndPassword()
@@ -58,8 +60,11 @@ def authenticate():
             npassword = console.input("New Password:")
             if uname and npassword:
                 new_user = {"username": nuname, "password": npassword}
+                new_account = {"owner": uname, "amount": 0}
+                accounts.append(new_account)
                 users.append(new_user)
                 save_data(users, USERS_FILE)
+                save_data(accounts, ACCOUNTS_FILE)
                 console.print("New User Created", style="green")
                 return new_user
             else:
@@ -80,7 +85,6 @@ def menu():
     ]
     answers = inquirer.prompt(questions)
     print(answers)
-
     match answers.get('menu_option'):
         case "Exit":
             console.print("Exiting App", style="red")
@@ -88,21 +92,49 @@ def menu():
         case "Logout":
             console.print("Logging user Out", style="red")
             return 'l'
+        case "Add Income":
+            return 'i'
+
+def Add_Income(user):
+    accounts = load_data(ACCOUNTS_FILE)
+    amount_added = False
+    while user:
+        amount = console.input("What is your amount? ")
+        if amount:
+          break  
+    for account in accounts:
+        if account["owner"] == user.get("username"):
+            console.print("Added amount:" ,amount)
+            account["amount"] += int(amount)
+            console.print("full acount amount:", account["amount"])
+            save_data(accounts, ACCOUNTS_FILE)
+            amount_added = True
+            break
+    if amount_added == False:
+        new_account = {"owner": user.get("username"), "amount": int(amount)}
+        accounts.append(new_account)
+        console.print("Added amount:" ,amount)
+        console.print("full acount amount:", amount)
+        save_data(accounts, ACCOUNTS_FILE)
+        amount_added = True
 
 def main():    
     run_app = True
+    console.print("Accounting App By Vector INC.", style="blue bold")
     while run_app == True:
-        console.print("Accounting App By Vector INC.", style="blue bold")
         user = authenticate()
-        if user:
+        while user:
             opt = menu()
             match opt:
                 case 'e':
+                    user = None
                     run_app = False
                 case 'l':
                     user = None
-        else:
-            user = authenticate()
+                case 'i':
+                    Add_Income(user)
+        #else:
+        #    user = authenticate()
 
 if __name__ == "__main__":
     main()
