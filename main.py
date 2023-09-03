@@ -94,6 +94,8 @@ def menu():
             return 'l'
         case "Add Income":
             return 'i'
+        case "Add Expenses":
+            return 'ex'
 
 def Add_Income(user):
     accounts = load_data(ACCOUNTS_FILE)
@@ -124,6 +126,35 @@ def Add_Income(user):
         save_data(accounts, ACCOUNTS_FILE)
         amount_added = True
 
+def Add_Expense(user):
+    accounts = load_data(ACCOUNTS_FILE)
+    amount_removed = False
+    while user:
+        amount = console.input("What is your amount? ")
+        if amount:
+            try:
+                amount = int(amount)
+                break 
+            except ValueError:
+                console.print("Please enter a number", style="red") 
+        elif not amount:
+            console.print("Please Enter an amount", style="red")
+    for account in accounts:
+        if account["owner"] == user.get("username"):
+            console.print("Removed amount:" ,amount)
+            account["amount"] -= int(amount)
+            console.print("full acount amount:", account["amount"])
+            save_data(accounts, ACCOUNTS_FILE)
+            amount_removed = True
+            break
+    if amount_removed == False:
+        new_account = {"owner": user.get("username"), "amount": int(amount)}
+        accounts.append(new_account)
+        console.print("Added amount:" ,amount)
+        console.print("full acount amount:", amount)
+        save_data(accounts, ACCOUNTS_FILE)
+        amount_added = True
+
 def main():    
     run_app = True
     console.print("Accounting App By Vector INC.", style="blue bold")
@@ -139,6 +170,9 @@ def main():
                     user = None
                 case 'i':
                     Add_Income(user)
+                case 'ex':
+                    Add_Expense(user)
+
         #else:
         #    user = authenticate()
 
