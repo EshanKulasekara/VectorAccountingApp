@@ -17,22 +17,29 @@ def load_data(file_path):
     else:
         return []
 
+def save_data(data, file_path):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
 def askUsernameAndPassword():
-    username = console.input("Username: ")
-    password = getpass.getpass("Password: ")
     o = dict();
-    if username and password:
-        o['uname'] = username
-        o['password'] = password
-        return o
-    else:
-        console.print("Please Enter Username and Password", style="red")
-        askUsernameAndPassword()
+    while True:
+        username = console.input("Username: ")
+        password = getpass.getpass("Password: ")
+        if username and password:
+            o['uname'] = username
+            o['password'] = password
+            print(o)
+            return o
+        else:
+            console.print("Please Enter Username and Password", style="red")
+            print(o)
 
 def authenticate():
     users = load_data(USERS_FILE)
     for _ in range(3):
         ans = askUsernameAndPassword()
+        print("in authenticate", ans)
         uname = ans.get('uname')
         password = ans.get('password')
 
@@ -45,7 +52,17 @@ def authenticate():
     console.print("You have tried 3 time now", style="red bold")
     creAcc = console.input("Do You want to create an Account [Y/N]: ")
     if creAcc == 'Y' or creAcc == 'y':
-        console.print("creating account", style="green")
+        while True:
+            nuname = console.input("New Username:")
+            npassword = console.input("New Password:")
+            if uname and npassword:
+                new_user = {"username": nuname, "password": npassword}
+                users.append(new_user)
+                save_data(users, USERS_FILE)
+                console.print("New User Created", style="green")
+                return new_user
+            else:
+                console.print("Please Enter new Username and Password")
     else:
         exitapp = console.input("Do You want to Exit [Y/N]:")
         if exitapp == 'Y' or exitapp == 'y':
