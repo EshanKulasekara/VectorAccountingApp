@@ -2,10 +2,9 @@ import json
 import getpass
 import os
 from rich.console import Console
+import inquirer
 
 console = Console()
-
-run_app = True
 
 DATA_DIR = 'data'
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
@@ -37,6 +36,7 @@ def askUsernameAndPassword():
 
 def authenticate():
     users = load_data(USERS_FILE)
+    active_user = False
     for _ in range(3):
         ans = askUsernameAndPassword()
         print("in authenticate", ans)
@@ -46,9 +46,10 @@ def authenticate():
         for user in users:
             if user["username"] == uname and user["password"] == password:
                 console.print("Sign In Successfull", style="green")
+                active_user = True
                 return user
-            else:
-                console.print("Incorrect Username and Password Try again", style="red")
+        if active_user == False:
+            console.print("Incorrect Username and Password Try again", style="red")
     console.print("You have tried 3 time now", style="red bold")
     creAcc = console.input("Do You want to create an Account [Y/N]: ")
     if creAcc == 'Y' or creAcc == 'y':
@@ -70,11 +71,38 @@ def authenticate():
         else:
             authenticate()
 
-def main():
+def menu():
+    questions = [
+        inquirer.List('menu_option',
+                              message="Hello There, What do you want to do?",
+                              choices=['Add Expenses', 'Add Income', 'Show Balance', 'Budget', 'History', 'Logout', 'Exit'],
+                              ),
+    ]
+    answers = inquirer.prompt(questions)
+    print(answers)
+
+    match answers.get('menu_option'):
+        case "Exit":
+            console.print("Exiting App", style="red")
+            return 'e'
+        case "Logout":
+            console.print("Logging user Out", style="red")
+            return 'l'
+
+def main():    
+    run_app = True
     while run_app == True:
         console.print("Accounting App By Vector INC.", style="blue bold")
-        authenticate()
-        break
+        user = authenticate()
+        if user:
+            opt = menu()
+            match opt:
+                case 'e':
+                    run_app = False
+                case 'l':
+                    user = None
+        else:
+            user = authenticate()
 
 if __name__ == "__main__":
     main()
