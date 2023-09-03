@@ -2,7 +2,9 @@ import json
 import getpass
 import os
 from rich.console import Console
+from rich.table import Table
 import inquirer
+from datetime import datetime
 
 console = Console()
 
@@ -96,6 +98,10 @@ def menu():
             return 'i'
         case "Add Expenses":
             return 'ex'
+        case "History":
+            return 'his'
+        case "Show Balance":
+            return 'b'
 
 def Add_Income(user):
     accounts = load_data(ACCOUNTS_FILE)
@@ -115,14 +121,20 @@ def Add_Income(user):
             console.print("Added amount:" ,amount)
             account["amount"] += int(amount)
             console.print("full acount amount:", account["amount"])
+            income_log = {"amount": amount, "type": "Income", "datetime": datetime.now().strftime("%d/%m/%Y %H:%M:%S")} #
+            account["history"].append(income_log)                                                                        # Logging history
+            print(income_log)
             save_data(accounts, ACCOUNTS_FILE)
             amount_added = True
             break
     if amount_added == False:
-        new_account = {"owner": user.get("username"), "amount": int(amount)}
+        new_account = {"owner": user.get("username"), "amount": int(amount), "history": []}
         accounts.append(new_account)
         console.print("Added amount:" ,amount)
         console.print("full acount amount:", amount)
+        income_log = {"amount": amount, "type": "Expense", "datetime": datetime.now().strftime("%d/%m/%Y %H:%M:%S")} #
+        account["history"].append(income_log)                                                                        # Logging history
+        print(income_log)
         save_data(accounts, ACCOUNTS_FILE)
         amount_added = True
 
@@ -141,23 +153,53 @@ def Add_Expense(user):
             console.print("Please Enter an amount", style="red")
     for account in accounts:
         if account["owner"] == user.get("username"):
-            console.print("Removed amount:" ,amount)
-            account["amount"] -= int(amount)
-            console.print("full acount amount:", account["amount"])
+            console.print("Removed amount:" ,amount)                #
+            account["amount"] -= int(amount)                        #  Amount updating
+            console.print("full acount amount:", account["amount"]) #
+            expense_log = {"amount": amount, "type": "Expense", "datetime": datetime.now().strftime("%d/%m/%Y %H:%M:%S")} #
+            account["history"].append(expense_log)                                                                        # Logging history
+            print(expense_log)                                                                                            #
             save_data(accounts, ACCOUNTS_FILE)
             amount_removed = True
             break
     if amount_removed == False:
-        new_account = {"owner": user.get("username"), "amount": int(amount)}
+        new_account = {"owner": user.get("username"), "amount": int(amount), "history": []}
         accounts.append(new_account)
         console.print("Added amount:" ,amount)
         console.print("full acount amount:", amount)
+        expense_log = {"amount": amount, "type": "Expense", "datetime": datetime.now().strftime("%d/%m/%Y %H:%M:%S")} #
+        account["history"].append(expense_log)                                                                        # Logging history
+        print(expense_log)
         save_data(accounts, ACCOUNTS_FILE)
         amount_added = True
+
+def History(user, func, data = None):
+    accounts = load_data(ACCOUNTS_FILE)
+    table = Table(title="Transaction history")
+    table.add_column("Date", justify="right", no_wrap=True)
+    table.add_column("Type")
+    table.add_column("Amount", justify="right",)
+    if func == 'r':
+        for account in accounts:
+            if account["owner"] == user.get("username"):
+                his = account["history"]
+                for record in his:
+                    if record.get("type") == "Income":
+                        table.add_row(record.get("datetime"), record.get("type"), str(record.get("amount")), style="green")
+                    else:
+                        table.add_row(record.get("datetime"), record.get("type"), str(record.get("amount")), style="red")
+                console.print(table)
+    elif func == 'w':
+        for account in accounts:
+            if account["owner"] == user.get("username"):
+                account["history"].append(data)
+                save_data(account, ACCOUNTS_FILE)
+
 
 def main():    
     run_app = True
     console.print("Accounting App By Vector INC.", style="blue bold")
+    accounts = load_data(ACCOUNTS_FILE)
     while run_app == True:
         user = authenticate()
         while user:
@@ -172,6 +214,12 @@ def main():
                     Add_Income(user)
                 case 'ex':
                     Add_Expense(user)
+                case 'his':
+                    History(user, 'r', data=None)
+                case 'b':
+                    for account in accounts:
+                        if account["owner"] == user.get("username"):
+                            console.print(account["amount"])
 
         #else:
         #    user = authenticate()
